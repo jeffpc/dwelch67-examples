@@ -1,0 +1,15 @@
+$mapfile_version 2
+
+LOAD_SEGMENT text {
+	FLAGS = READ EXECUTE;
+	NOHDR;
+	PADDR = 0x8000;
+	VADDR = 0x8000;
+	OS_ORDER = .text .bss;
+	ASSIGN_SECTION {
+		IS_NAME = .text;
+	};
+	ASSIGN_SECTION {
+		IS_NAME = .bss;
+	};
+};

@@ -1,3 +1,4 @@
+include ../config.make
 
 ARMGNU ?= arm-none-eabi
 
@@ -18,20 +19,19 @@ clean :
 	rm -f *.clang.opt.s
 
 vectors.o : vectors.s
-	$(ARMGNU)-as vectors.s -o vectors.o
+	$(AS) -march=armv6k -mfpu=vfpv2 -mfloat-abi=hard vectors.s -o vectors.o
 
 uart02.o : uart02.c
-	$(ARMGNU)-gcc $(COPS) -c uart02.c -o uart02.o
+	$(CC) $(COPS) -c uart02.c -o uart02.o
 
-uart02.elf : memmap vectors.o uart02.o 
-	$(ARMGNU)-ld vectors.o uart02.o -T memmap -o uart02.elf
-	$(ARMGNU)-objdump -D uart02.elf > uart02.list
+uart02.elf : mapfile vectors.o uart02.o 
+	$(LD) -dy -b -znointerp -o $@ -e _start -M mapfile vectors.o uart02.o
 
 uart02.bin : uart02.elf
-	$(ARMGNU)-objcopy uart02.elf -O binary uart02.bin
+	$(OBJCOPY) uart02.elf -O binary uart02.bin
 
 uart02.hex : uart02.elf
-	$(ARMGNU)-objcopy uart02.elf -O ihex uart02.hex
+	$(OBJCOPY) uart02.elf -O ihex uart02.hex
 
 
 
@@ -55,15 +55,15 @@ uart02.clang.bc : uart02.c
 uart02.clang.opt.elf : memmap vectors.o uart02.clang.bc
 	opt $(OOPS) uart02.clang.bc -o uart02.clang.opt.bc
 	llc $(LLCOPS) uart02.clang.opt.bc -o uart02.clang.opt.s
-	$(ARMGNU)-as uart02.clang.opt.s -o uart02.clang.opt.o
-	$(ARMGNU)-ld -o uart02.clang.opt.elf -T memmap vectors.o uart02.clang.opt.o
-	$(ARMGNU)-objdump -D uart02.clang.opt.elf > uart02.clang.opt.list
+	$(AS) uart02.clang.opt.s -o uart02.clang.opt.o
+	$(LD) -dy -b -znointerp -o uart02.clang.opt.elf -e _start -M mapfile vectors.o uart02.clang.opt.o
+	$(OBJDUMP) -D uart02.clang.opt.elf > uart02.clang.opt.list
 
 uart02.clang.hex : uart02.clang.opt.elf
-	$(ARMGNU)-objcopy uart02.clang.opt.elf uart02.clang.hex -O ihex
+	$(OBJCOPY) uart02.clang.opt.elf uart02.clang.hex -O ihex
 
 uart02.clang.bin : uart02.clang.opt.elf
-	$(ARMGNU)-objcopy uart02.clang.opt.elf uart02.clang.bin -O binary
+	$(OBJCOPY) uart02.clang.opt.elf uart02.clang.bin -O binary
 
 
 
