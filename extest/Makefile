@@ -1,7 +1,4 @@
-
-
-
-ARMGNU ?= arm-linux-gnueabi
+include ../config.make
 
 COPS = -Wall -O2 -nostdlib -nostartfiles -ffreestanding 
 
@@ -15,24 +12,16 @@ clean :
 	rm -f *.list
 
 vectors.o : vectors.s
-	$(ARMGNU)-as vectors.s -o vectors.o
+	$(AS) -march=armv6k -mfpu=vfpv2 -mfloat-abi=hard vectors.s -o vectors.o
 
 notmain.o : notmain.c 
-	$(ARMGNU)-gcc $(COPS) -c notmain.c -o notmain.o
+	$(CC) $(COPS) -c notmain.c -o notmain.o
 
 uart.o : uart.c 
-	$(ARMGNU)-gcc $(COPS) -c uart.c -o uart.o
+	$(CC) $(COPS) -c uart.c -o uart.o
 
-notmain.bin : memmap vectors.o uart.o notmain.o 
-	$(ARMGNU)-ld -T memmap vectors.o notmain.o uart.o -o notmain.elf
-	$(ARMGNU)-objdump -D notmain.elf > notmain.list
-	$(ARMGNU)-objcopy notmain.elf -O ihex notmain.hex 
-	$(ARMGNU)-objcopy notmain.elf -O binary notmain.bin 
-
-
-
-
-
-
-
-
+notmain.bin : mapfile vectors.o uart.o notmain.o 
+	$(LD) -dy -b -znointerp -o notmain.elf -e _start -M mapfile vectors.o notmain.o uart.o
+	#$(OBJDUMP) -D notmain.elf > notmain.list
+	$(OBJCOPY) notmain.elf -O ihex notmain.hex 
+	$(OBJCOPY) notmain.elf -O binary notmain.bin 
