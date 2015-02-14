@@ -112,6 +112,17 @@ static void init_vars()
 	}
 }
 
+static void get_vars()
+{
+	unsigned int addr, i;
+
+	for (i = 0; tests[i].desc; i++) {
+		addr = TEST_BASE + (TEST_STEP * i);
+
+		GET32(addr);
+	}
+}
+
 int notmain ( void )
 {
     unsigned int ra;
@@ -154,7 +165,7 @@ int notmain ( void )
     test();
 
     start_l1cache();
-    // is this really necessary? GET32(0x00009000);
+    get_vars();
     uart_puts("MMU on, cache on, try 1\n");
     test();
     uart_puts("MMU on, cache on, try 2\n");
@@ -173,7 +184,7 @@ int notmain ( void )
     test();
 
     start_l1cache();
-    // is this really necessary? GET32(0x00009000);
+    get_vars();
     uart_puts("MMU on, cache on, W on, try 1\n");
     test();
     stop_l1cache();
