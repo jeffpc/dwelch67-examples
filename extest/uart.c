@@ -34,36 +34,54 @@ extern void dummy ( unsigned int );
 //------------------------------------------------------------------------
 void uart_putc ( unsigned int c )
 {
-    while(1)
-    {
-        if(GET32(AUX_MU_LSR_REG)&0x20) break;
-    }
-    PUT32(AUX_MU_IO_REG,c);
+	while ((GET32(AUX_MU_LSR_REG) & 0x20) == 0)
+		;
+	PUT32(AUX_MU_IO_REG,c);
+
+	if (c == '\n')
+		uart_putc('\r');
+}
+
+void uart_puts(char *str)
+{
+	while (*str) {
+		uart_putc(*str);
+		str++;
+	}
+
+	while ((GET32(AUX_MU_LSR_REG) & 0x40) == 0)
+		;
 }
 //------------------------------------------------------------------------
 void hexstrings ( unsigned int d )
 {
-    //unsigned int ra;
-    unsigned int rb;
-    unsigned int rc;
+	//unsigned int ra;
+	unsigned int rb;
+	unsigned int rc;
 
-    rb=32;
-    while(1)
-    {
-        rb-=4;
-        rc=(d>>rb)&0xF;
-        if(rc>9) rc+=0x37; else rc+=0x30;
-        uart_putc(rc);
-        if(rb==0) break;
-    }
-    uart_putc(0x20);
+	rb=32;
+	while(1)
+	{
+		rb-=4;
+		rc=(d>>rb)&0xF;
+		if(rc>9) rc+=0x37; else rc+=0x30;
+		uart_putc(rc);
+		if(rb==0) break;
+	}
+	uart_putc(0x20);
+
+	while ((GET32(AUX_MU_LSR_REG) & 0x40) == 0)
+		;
 }
 //------------------------------------------------------------------------
 void hexstring ( unsigned int d )
 {
-    hexstrings(d);
-    uart_putc(0x0D);
-    uart_putc(0x0A);
+	hexstrings(d);
+	uart_putc(0x0D);
+	uart_putc(0x0A);
+
+	while ((GET32(AUX_MU_LSR_REG) & 0x40) == 0)
+		;
 }
 //------------------------------------------------------------------------
 void uart_init ( void )

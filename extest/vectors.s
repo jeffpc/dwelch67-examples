@@ -30,16 +30,19 @@ dummy:
 
 .globl LDREX
 LDREX:
+    mov r1, r0
     ldrex r0,[r1]
     bx lr
 
 .globl STREX
 STREX:
+    mov r2, r0
     strex r0,r1,[r2]
     bx lr
 
 .globl EXTEST
 EXTEST:
+    mov r2, r0
     ldrex r3,[r2]
     strex r0,r1,[r2]
     bx lr

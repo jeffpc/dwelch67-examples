@@ -5,9 +5,18 @@ LOAD_SEGMENT text {
 	NOHDR;
 	PADDR = 0x8000;
 	VADDR = 0x8000;
-	OS_ORDER = .text .bss;
+	OS_ORDER = .text;
 	ASSIGN_SECTION {
 		IS_NAME = .text;
+	};
+};
+
+LOAD_SEGMENT data {
+	FLAGS = READ WRITE;
+	NOHDR;
+	OS_ORDER = .data .bss;
+	ASSIGN_SECTION {
+		IS_NAME = .data;
 	};
 	ASSIGN_SECTION {
 		IS_NAME = .bss;
